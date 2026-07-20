@@ -1,11 +1,26 @@
 # Hackthone Backend
 
-API server for the Hackthone Zoho Creator platform.
+**External forms only.** This server is **not** part of Zoho Creator widgets.
 
-When a mooring master submits an external form:
-1. Backend receives JSON data + `operationRef` (maps to Creator `Reference_Number`)
-2. Generates a PDF
-3. Uploads PDF to the matching Zoho Creator operation record field (`OPS_OFD_*`)
+When a mooring master submits an OPS-OFD or QHSE form:
+
+1. External Next.js app proxies the submission here
+2. Backend generates a PDF
+3. Backend uploads PDF to the Zoho Creator **STS_Operation** record (matched by `Reference_Number`)
+
+Widgets (`Hackthone/widget/`) **never call this API**. They read/write Creator via the in-app JS SDK.
+
+See **[../ARCHITECTURE.md](../ARCHITECTURE.md)**.
+
+---
+
+## Who connects here?
+
+| Client | Route prefix |
+|--------|----------------|
+| `operations-sts-checklist` | `/api/sts-checklist/*` |
+| `QHSE-FORMS` | `/api/qhse/*` |
+| Optional direct | `/api/forms/:slug/submit` |
 
 ---
 
@@ -19,7 +34,7 @@ npm install
 npm run dev
 ```
 
-Runs on **port 4000** by default.
+Default port **4000**. Production: Render (`hack-backend-h3eq.onrender.com`).
 
 ---
 
@@ -28,70 +43,34 @@ Runs on **port 4000** by default.
 | Variable | Description |
 |----------|-------------|
 | `PORT` | Server port (default 4000) |
-| `ZOHO_CLIENT_ID` | Zoho API Console client ID |
-| `ZOHO_CLIENT_SECRET` | Client secret |
-| `ZOHO_REFRESH_TOKEN` | OAuth refresh token with Creator scopes |
-| `ZOHO_CREATOR_OWNER` | Zoho username (account owner) |
-| `ZOHO_CREATOR_APP` | Creator app link name |
-| `ZOHO_CREATOR_REPORT` | Report link name (default `All_Operations`) |
-| `ZOHO_REFERENCE_FIELD` | Field for operation key (default `Reference_Number`) |
-| `API_KEY` | Optional key for external form requests |
+| `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` / `ZOHO_REFRESH_TOKEN` | Zoho OAuth (India: `ZOHO_ACCOUNTS_URL=https://accounts.zoho.in`) |
+| `ZOHO_CREATOR_OWNER` | e.g. `gaurav.khurana468` |
+| `ZOHO_CREATOR_APP` | e.g. `ocean-marine` |
+| `ZOHO_CREATOR_REPORT` | e.g. `STS_Operation_Report` |
+| `ZOHO_REFERENCE_FIELD` | default `Reference_Number` |
+| `API_KEY` | Optional — must match `HACKTHONE_API_KEY` on form apps |
 
 ---
 
-## API endpoints
+## Main endpoints
 
-### Health check
 ```
-GET /health
-```
-
-### List forms
-```
-GET /api/forms
-```
-
-### Submit form (generate PDF + upload to Creator)
-```
-POST /api/forms/OPS-OFD-029/submit
-Content-Type: application/json
-X-API-Key: your-api-key
-
-{
-  "operationRef": "2026-001",
-  "data": {
-    "personalDetails": { "name": "John" },
-    "totals": { "grandTotal": 1500 }
-  }
-}
+GET  /health
+POST /api/sts-checklist/ops-ofd-029/create   ← OPS-OFD forms (legacy path)
+POST /api/qhse/near-miss-form/create        ← QHSE forms
+POST /api/forms/OPS-OFD-029/submit          ← direct submit
+GET  /api/operations/2026-001               ← lookup by Reference_Number
+GET  /oauth/start                           ← generate refresh token (dev)
 ```
 
-Response:
+Example submit body:
+
 ```json
 {
-  "success": true,
-  "form": "OPS-OFD-029",
   "operationRef": "2026-001",
-  "creatorField": "OPS_OFD_029",
-  "fileName": "OPS-OFD-029-2026-001.pdf",
-  "pdfSize": 12345,
-  "uploadSkipped": false
+  "data": { "...": "form fields" }
 }
 ```
-
-### Lookup operation in Creator
-```
-GET /api/operations/2026-001
-```
-
----
-
-## Zoho OAuth scopes required
-
-- `ZohoCreator.report.READ`
-- `ZohoCreator.report.UPDATE` (for file upload)
-
-Generate refresh token via Zoho API Console OAuth flow.
 
 ---
 
@@ -100,24 +79,24 @@ Generate refresh token via Zoho API Console OAuth flow.
 ```
 backend/
 ├── src/
-│   ├── index.js              # Express server
-│   ├── config/
-│   │   ├── env.js
-│   │   └── forms.js          # OPS-OFD slug → Creator field map
+│   ├── index.js
+│   ├── config/forms.js          ← OPS-OFD slug → Creator field
 │   ├── routes/
-│   │   ├── forms.js          # POST /api/forms/:slug/submit
-│   │   └── operations.js     # GET /api/operations/:ref
+│   │   ├── stsChecklist.js      ← operations-sts-checklist proxy target
+│   │   ├── qhse.js              ← QHSE-FORMS proxy target
+│   │   ├── forms.js
+│   │   └── operations.js
 │   └── services/
-│       ├── pdfGenerator.js   # PDF from form JSON
-│       └── zohoCreator.js    # OAuth + search + upload
-├── .env.example
-└── package.json
+│       ├── pdfGenerator.js
+│       ├── zohoCreator.js
+│       └── submissionStore.js   ← JSON cache for update-mode prefill
+└── data/                        ← local submission store (gitignored)
 ```
 
 ---
 
-## Next steps
+## Not in scope
 
-- Replace simple PDF in `pdfGenerator.js` with proper per-form templates
-- Add external-forms Next.js app (separate folder) that proxies to this backend
-- Wire `API_KEY` in external forms proxy headers
+- Widget static files (use `zet pack` → Creator)
+- Creator page UI (widgets handle that inside Creator)
+- Mooring master form UI (separate Next.js apps)

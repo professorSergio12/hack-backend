@@ -7,6 +7,13 @@ import oauthRouter from "./routes/oauth.js";
 import stsChecklistRouter from "./routes/stsChecklist.js";
 import qhseRouter from "./routes/qhse.js";
 
+/**
+ * Hackthone backend — external form submissions only.
+ * NOT used by Zoho Creator widgets (widgets use Creator JS SDK in-browser).
+ * Clients: operations-sts-checklist, QHSE-FORMS (via server-side proxy).
+ * See Hackthone/ARCHITECTURE.md
+ */
+
 const app = express();
 
 app.use(cors({ origin: "*" }));
