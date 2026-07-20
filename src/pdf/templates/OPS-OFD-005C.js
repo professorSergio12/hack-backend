@@ -13,6 +13,7 @@ import {
     ImageRun,
     BorderStyle
 } from "docx";
+import { loadDocumentLogo, LOGO_FALLBACK_TEXT } from "../documentLogo.js";
 
 export async function generateOpsOfd005CDoc(checklist, fullPath) {
 
@@ -26,9 +27,7 @@ export async function generateOpsOfd005CDoc(checklist, fullPath) {
     let logoImage = null;
 
     try {
-        logoImage = fs.readFileSync(
-            path.join(process.cwd(), "public/image/image.png")
-        );
+        logoImage = loadDocumentLogo().data;
     } catch { }
 
     /* ================= HEADER TABLE ================= */
@@ -49,16 +48,13 @@ export async function generateOpsOfd005CDoc(checklist, fullPath) {
                                 ? new Paragraph({
                                     alignment: AlignmentType.CENTER,
                                     children: [
-                                        new ImageRun({
-                                            data: logoImage,
-                                            transformation: { width: 200, height: 100 }
-                                        })
+                                        new ImageRun({ type: "jpg", data: logoImage, transformation: { width: 110, height: 110 } })
                                     ]
                                 })
                                 : new Paragraph({
                                     alignment: AlignmentType.CENTER,
                                     children: [
-                                        new TextRun({ text: "OCEANE", bold: true, size: 24 })
+                                        new TextRun({ text: LOGO_FALLBACK_TEXT, bold: true, size: 24 })
                                     ]
                                 })
                         ]

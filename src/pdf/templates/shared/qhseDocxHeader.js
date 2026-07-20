@@ -7,11 +7,11 @@ import {
   WidthType,
   AlignmentType,
   VerticalAlign,
-  ImageRun,
   BorderStyle,
   SimpleField,
 } from "docx";
-import { readDocumentLogo } from "../../documentLogo.js";
+import { LOGO_FALLBACK_TEXT } from "../../documentLogo.js";
+import { createLogoImageRun } from "./documentLogoImage.js";
 
 const THIN_BORDER = {
   top: { style: BorderStyle.SINGLE, size: 4, color: "000000" },
@@ -95,9 +95,9 @@ export function buildDocxMeta(record, formCodeDefault) {
  * @returns {Table}
  */
 export function buildQhseDocxHeaderTable({ formTitle, meta }) {
-  let logoImage = null;
+  let logoRun = null;
   try {
-    logoImage = readDocumentLogo();
+    logoRun = createLogoImageRun();
   } catch {
     /* no logo */
   }
@@ -130,14 +130,14 @@ export function buildQhseDocxHeaderTable({ formTitle, meta }) {
             width: { size: 25, type: WidthType.PERCENTAGE },
             verticalAlign: VerticalAlign.CENTER,
             children: [
-              logoImage
+              logoRun
                 ? new Paragraph({
                     alignment: AlignmentType.CENTER,
-                    children: [new ImageRun({ data: logoImage, transformation: { width: 200, height: 100 } })],
+                    children: [logoRun],
                   })
                 : new Paragraph({
                     alignment: AlignmentType.CENTER,
-                    children: [new TextRun({ text: "OCEANE GROUP", bold: true })],
+                    children: [new TextRun({ text: LOGO_FALLBACK_TEXT, bold: true })],
                   }),
             ],
           }),

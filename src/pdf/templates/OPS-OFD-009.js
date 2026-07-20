@@ -23,9 +23,7 @@ export async function generateOpsOfd009Doc(report, fullPath) {
 
     let logoImage = null;
     try {
-        logoImage = fs.readFileSync(
-            path.join(process.cwd(), "public/image/image.png")
-        );
+        logoImage = loadDocumentLogo().data;
     } catch { }
 
     /* ================= HEADER TABLE ================= */
@@ -52,13 +50,10 @@ export async function generateOpsOfd009Doc(report, fullPath) {
                                 ? new Paragraph({
                                     alignment: AlignmentType.CENTER,
                                     children: [
-                                        new ImageRun({
-                                            data: logoImage,
-                                            transformation: { width: 200, height: 100 }
-                                        })
+                                        new ImageRun({ type: "jpg", data: logoImage, transformation: { width: 110, height: 110 } })
                                     ]
                                 })
-                                : new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "OCEANE", bold: true })] })
+                                : new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: LOGO_FALLBACK_TEXT, bold: true })] })
                         ]
                     }),
 

@@ -13,6 +13,7 @@ import {
     ImageRun
 } from "docx";
 import { loadSignatureImage } from "./shared/loadSignatureImage.js";
+import { loadDocumentLogo, LOGO_FALLBACK_TEXT } from "../documentLogo.js";
 
 export async function generateOpsOfd001Doc(checklist, fullPath) {
 
@@ -26,9 +27,7 @@ export async function generateOpsOfd001Doc(checklist, fullPath) {
     let signatureImage = null;
 
     try {
-        logoImage = fs.readFileSync(
-            path.join(process.cwd(), "public/image/image.png")
-        );
+        logoImage = loadDocumentLogo().data;
     } catch { }
 
     signatureImage = loadSignatureImage(sig.signature, "OPS-OFD-001");
@@ -48,13 +47,10 @@ export async function generateOpsOfd001Doc(checklist, fullPath) {
                             logoImage
                                 ? new Paragraph({
                                     children: [
-                                        new ImageRun({
-                                            data: logoImage,
-                                            transformation: { width: 200, height: 100 }
-                                        })
+                                        new ImageRun({ type: "jpg", data: logoImage, transformation: { width: 110, height: 110 } })
                                     ]
                                 })
-                                : new Paragraph("OCEANE")
+                                : new Paragraph(LOGO_FALLBACK_TEXT)
                         ]
                     }),
 

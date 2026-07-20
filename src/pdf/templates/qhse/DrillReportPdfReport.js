@@ -1,6 +1,5 @@
-import fs from "node:fs";
-import path from "node:path";
 import { pdfSafeText } from "../shared/pdfSafeText.js";
+import { loadDocumentLogo, LOGO_FALLBACK_TEXT } from "../../documentLogo.js";
 
 const FORM_TITLE = "Drill Report";
 const FORM_CODE_DEFAULT = "QAF-OFD-040";
@@ -56,15 +55,15 @@ function paintHeader(doc, report) {
 
   let logoBottom = rowTop;
   try {
-    const buf = fs.readFileSync(path.join(process.cwd(), "public/image/image.png"));
-    const logoW = Math.min(40, col1 - 4);
-    const logoH = logoW * 0.55;
-    doc.addImage(buf.toString("base64"), "PNG", x0 + (col1 - logoW) / 2, rowTop + 2, logoW, logoH);
+    const { data, jsPdf } = loadDocumentLogo();
+    const logoW = Math.min(28, col1 - 4);
+    const logoH = logoW;
+    doc.addImage(data.toString("base64"), jsPdf, x0 + (col1 - logoW) / 2, rowTop + 2, logoW, logoH);
     logoBottom = rowTop + 2 + logoH;
   } catch {
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    doc.text("OCEANE", x0 + col1 / 2, rowTop + 10, { align: "center" });
+    doc.text(LOGO_FALLBACK_TEXT, x0 + col1 / 2, rowTop + 10, { align: "center" });
     logoBottom = rowTop + 14;
   }
 

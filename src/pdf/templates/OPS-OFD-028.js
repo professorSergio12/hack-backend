@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { loadSignatureImage } from "./shared/loadSignatureImage.js";
+import { loadDocumentLogo, LOGO_FALLBACK_TEXT } from "../documentLogo.js";
 import {
     Document,
     Packer,
@@ -47,9 +48,7 @@ export async function generateOpsOfd028Doc(checklist, fullPath) {
 
     let logoImage = null;
     try {
-        logoImage = fs.readFileSync(
-            path.join(process.cwd(), "public/image/image.png")
-        );
+        logoImage = loadDocumentLogo().data;
     } catch { }
 
     const signatureImage = loadSignatureImage(sig.signatureImage, "OPS-OFD-028-signature");
@@ -79,13 +78,10 @@ export async function generateOpsOfd028Doc(checklist, fullPath) {
                                 ? new Paragraph({
                                     alignment: AlignmentType.CENTER,
                                     children: [
-                                        new ImageRun({
-                                            data: logoImage,
-                                            transformation: { width: 200, height: 100 }
-                                        })
+                                        new ImageRun({ type: "jpg", data: logoImage, transformation: { width: 110, height: 110 } })
                                     ]
                                 })
-                                : new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: "OCEANE", bold: true })] })
+                                : new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: LOGO_FALLBACK_TEXT, bold: true })] })
                         ]
                     }),
 

@@ -1,4 +1,4 @@
-import { readDocumentLogo } from "../../documentLogo.js";
+import { loadDocumentLogo, LOGO_FALLBACK_TEXT } from "../../documentLogo.js";
 
 export const QHSE_PDF_SIDE_MARGIN_MM = 12;
 export const QHSE_PDF_TABLE_TOP_MM = 58;
@@ -47,15 +47,15 @@ export function paintQhseFormHeader(doc, { formTitle, meta }) {
 
   let logoBottom = rowTop;
   try {
-    const buf = readDocumentLogo();
-    const logoW = Math.min(40, col1 - 4);
-    const logoH = logoW * 0.55;
-    doc.addImage(buf.toString("base64"), "PNG", margin + (col1 - logoW) / 2, rowTop + 2, logoW, logoH);
+    const { data, jsPdf } = loadDocumentLogo();
+    const logoW = Math.min(28, col1 - 4);
+    const logoH = logoW; // Helios mark is square
+    doc.addImage(data.toString("base64"), jsPdf, margin + (col1 - logoW) / 2, rowTop + 2, logoW, logoH);
     logoBottom = rowTop + 2 + logoH;
   } catch {
     doc.setFontSize(9);
     doc.setFont("helvetica", "bold");
-    doc.text("OCEANE", margin + col1 / 2, rowTop + 10, { align: "center" });
+    doc.text(LOGO_FALLBACK_TEXT, margin + col1 / 2, rowTop + 10, { align: "center" });
     logoBottom = rowTop + 14;
   }
 

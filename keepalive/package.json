@@ -1,0 +1,15 @@
+{
+  "name": "hackthone-keepalive-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Keepalive cron for Hackthone backend (Render free-tier wake ping)",
+  "scripts": {
+    "start": "node src/index.js",
+    "ping": "node src/ping.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "node-cron": "^3.0.3"
+  }
+}

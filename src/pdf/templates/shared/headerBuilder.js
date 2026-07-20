@@ -4,13 +4,13 @@ import {
     TableCell,
     Paragraph,
     TextRun,
-    ImageRun,
     WidthType,
     AlignmentType,
     VerticalAlign,
     BorderStyle
 } from "docx";
-import { readDocumentLogo } from "../../documentLogo.js";
+import { LOGO_FALLBACK_TEXT } from "../../documentLogo.js";
+import { createLogoImageRun } from "./documentLogoImage.js";
 
 /**
  * Builds reusable header table for all pages
@@ -23,9 +23,9 @@ import { readDocumentLogo } from "../../documentLogo.js";
 export function buildHeaderTable(formData, currentPage, totalPages, formTitle) {
     
     // ========== LOAD STATIC LOGO ==========
-    let logoImage = null;
+    let logoRun = null;
     try {
-        logoImage = readDocumentLogo();
+        logoRun = createLogoImageRun();
     } catch (err) {
         console.error("Logo not found:", err.message);
     }
@@ -84,20 +84,15 @@ export function buildHeaderTable(formData, currentPage, totalPages, formTitle) {
                             right: 80
                         },
                         children: [
-                            logoImage
+                            logoRun
                                 ? new Paragraph({
                                     alignment: AlignmentType.CENTER,
-                                    children: [
-                                        new ImageRun({
-                                            data: logoImage,
-                                            transformation: { width: 200, height: 100 }
-                                        })
-                                    ]
+                                    children: [logoRun]
                                 })
                                 : new Paragraph({
                                     alignment: AlignmentType.CENTER,
                                     children: [
-                                        new TextRun({ text: "OCEANE", bold: true, size: 24 })
+                                        new TextRun({ text: LOGO_FALLBACK_TEXT, bold: true, size: 24 })
                                     ]
                                 })
                         ]

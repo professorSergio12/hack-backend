@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { loadSignatureImage } from "./shared/loadSignatureImage.js";
+import { loadDocumentLogo, LOGO_FALLBACK_TEXT } from "../documentLogo.js";
 import {
     Document,
     Packer,
@@ -26,9 +27,7 @@ export async function generateDeclarationOfSeaDoc(declaration, fullPath) {
     let manoeuvringShipSignatureImage = null;
 
     try {
-        logoImage = fs.readFileSync(
-            path.join(process.cwd(), "public/image/image.png")
-        );
+        logoImage = loadDocumentLogo().data;
     } catch { }
 
     constantHeadingShipSignatureImage = loadSignatureImage(constantHeadingShipSig?.signature, "OPS-OFD-005E-constantHeadingShip");
@@ -48,13 +47,10 @@ export async function generateDeclarationOfSeaDoc(declaration, fullPath) {
                             logoImage
                                 ? new Paragraph({
                                     children: [
-                                        new ImageRun({
-                                            data: logoImage,
-                                            transformation: { width: 200, height: 100 },
-                                        }),
+                                        new ImageRun({ type: "jpg", data: logoImage, transformation: { width: 110, height: 110 } }),
                                     ],
                                 })
-                                : new Paragraph("OCEANE GROUP"),
+                                : new Paragraph(LOGO_FALLBACK_TEXT),
                         ],
                     }),
 

@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { loadSignatureImage } from "./shared/loadSignatureImage.js";
+import { loadDocumentLogo, LOGO_FALLBACK_TEXT } from "../documentLogo.js";
 import {
     Document,
     Packer,
@@ -29,9 +30,7 @@ export async function generateOpsOfd005DDoc(checklist, fullPath) {
     let terminalSignatureImage = null;
 
     try {
-        logoImage = fs.readFileSync(
-            path.join(process.cwd(), "public/image/image.png")
-        );
+        logoImage = loadDocumentLogo().data;
     } catch { }
 
     terminalBerthedShipSignatureImage = loadSignatureImage(terminalBerthedShipSig?.signature, "OPS-OFD-005D-terminalBerthedShip");
@@ -53,13 +52,10 @@ export async function generateOpsOfd005DDoc(checklist, fullPath) {
                             logoImage
                                 ? new Paragraph({
                                     children: [
-                                        new ImageRun({
-                                            data: logoImage,
-                                            transformation: { width: 200, height: 100 }
-                                        })
+                                        new ImageRun({ type: "jpg", data: logoImage, transformation: { width: 110, height: 110 } })
                                     ]
                                 })
-                                : new Paragraph("OCEANE GROUP")
+                                : new Paragraph(LOGO_FALLBACK_TEXT)
                         ]
                     }),
 
