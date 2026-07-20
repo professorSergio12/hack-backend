@@ -3,3 +3,4 @@ node_modules/
 *.log
 tmp/
 uploads/
+data/generated-docs/

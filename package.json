@@ -13,8 +13,11 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "docx": "^9.7.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
     "pdf-lib": "^1.17.1"
   }
 }

@@ -76,7 +76,13 @@ export async function uploadPdfToCreator(recordId, fieldLinkName, pdfBuffer, fil
 
   const url = `${base}/${creatorOwner}/${creatorApp}/report/${creatorReport}/${recordId}/${fieldLinkName}/upload`;
 
-  const blob = new Blob([pdfBuffer], { type: "application/pdf" });
+  const lower = String(fileName || "").toLowerCase();
+  const mime = lower.endsWith(".docx")
+    ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    : lower.endsWith(".doc")
+      ? "application/msword"
+      : "application/pdf";
+  const blob = new Blob([pdfBuffer], { type: mime });
   const formData = new FormData();
   formData.append("file", blob, fileName);
 
