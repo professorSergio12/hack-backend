@@ -13,6 +13,7 @@ import {
     ImageRun
 } from "docx";
 import { loadSignatureImage } from "./shared/loadSignatureImage.js";
+import { createTypedImageRun } from "./shared/createTypedImageRun.js";
 import { loadDocumentLogo, LOGO_FALLBACK_TEXT } from "../documentLogo.js";
 
 export async function generateOpsOfd001Doc(checklist, fullPath) {
@@ -47,7 +48,7 @@ export async function generateOpsOfd001Doc(checklist, fullPath) {
                             logoImage
                                 ? new Paragraph({
                                     children: [
-                                        new ImageRun({ type: "jpg", data: logoImage, transformation: { width: 110, height: 110 } })
+                                        createTypedImageRun(logoImage, { width: 110, height: 110 })
                                     ]
                                 })
                                 : new Paragraph(LOGO_FALLBACK_TEXT)
@@ -171,10 +172,7 @@ export async function generateOpsOfd001Doc(checklist, fullPath) {
                             signatureImage
                                 ? new Paragraph({
                                     children: [
-                                        new ImageRun({
-                                            data: signatureImage,
-                                            transformation: { width: 200, height: 100 }
-                                        })
+                                        createTypedImageRun(signatureImage, { width: 200, height: 100 })
                                     ]
                                 })
                                 : new Paragraph("Signature")

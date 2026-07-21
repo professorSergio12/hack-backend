@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { loadSignatureImage } from "./shared/loadSignatureImage.js";
+import { createTypedImageRun } from "./shared/createTypedImageRun.js";
 import {
     Document,
     Packer,
@@ -338,10 +339,7 @@ function buildSignatureBlock(signatureBlock) {
                                 spacing: { after: 100 },
                                 alignment: AlignmentType.LEFT,
                                 children: [
-                                    new ImageRun({
-                                        data: stampImage,
-                                        transformation: { width: 150, height: 75 }
-                                    })
+                                    createTypedImageRun(stampImage, { width: 150, height: 75 })
                                 ]
                             }) : new Paragraph({
                                 spacing: { after: 100, before: 0 },

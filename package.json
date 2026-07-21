@@ -16,6 +16,7 @@
     "docx": "^9.7.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
+    "jszip": "^3.10.1",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "pdf-lib": "^1.17.1"

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { loadSignatureImage } from "./shared/loadSignatureImage.js";
+import { createTypedImageRun } from "./shared/createTypedImageRun.js";
 import {
     Document,
     Packer,
@@ -430,10 +431,7 @@ function buildSignatureBlock(signature) {
                             new Paragraph({
                                 children: signatureImage
                                     ? [
-                                        new ImageRun({
-                                            data: signatureImage,
-                                            transformation: { width: 180, height: 70 }
-                                        })
+                                        createTypedImageRun(signatureImage, { width: 180, height: 70 })
                                     ]
                                     : [new TextRun({ text: "", size: FONT_SIZE })]
                             })

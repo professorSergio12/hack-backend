@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { loadSignatureImage } from "./shared/loadSignatureImage.js";
+import { createTypedImageRun } from "./shared/createTypedImageRun.js";
 import { loadDocumentLogo, LOGO_FALLBACK_TEXT } from "../documentLogo.js";
 import {
     Document,
@@ -52,7 +53,7 @@ export async function generateOpsOfd005DDoc(checklist, fullPath) {
                             logoImage
                                 ? new Paragraph({
                                     children: [
-                                        new ImageRun({ type: "jpg", data: logoImage, transformation: { width: 110, height: 110 } })
+                                        createTypedImageRun(logoImage, { width: 110, height: 110 })
                                     ]
                                 })
                                 : new Paragraph(LOGO_FALLBACK_TEXT)
@@ -243,10 +244,7 @@ export async function generateOpsOfd005DDoc(checklist, fullPath) {
                             terminalBerthedShipSignatureImage
                                 ? new Paragraph({
                                     children: [
-                                        new ImageRun({
-                                            data: terminalBerthedShipSignatureImage,
-                                            transformation: { width: 200, height: 100 }
-                                        })
+                                        createTypedImageRun(terminalBerthedShipSignatureImage, { width: 200, height: 100 })
                                     ]
                                 })
                                 : new Paragraph("Signature")
@@ -257,10 +255,7 @@ export async function generateOpsOfd005DDoc(checklist, fullPath) {
                             outerShipSignatureImage
                                 ? new Paragraph({
                                     children: [
-                                        new ImageRun({
-                                            data: outerShipSignatureImage,
-                                            transformation: { width: 200, height: 100 }
-                                        })
+                                        createTypedImageRun(outerShipSignatureImage, { width: 200, height: 100 })
                                     ]
                                 })
                                 : new Paragraph("Signature")
@@ -271,10 +266,7 @@ export async function generateOpsOfd005DDoc(checklist, fullPath) {
                             terminalSignatureImage
                                 ? new Paragraph({
                                     children: [
-                                        new ImageRun({
-                                            data: terminalSignatureImage,
-                                            transformation: { width: 200, height: 100 }
-                                        })
+                                        createTypedImageRun(terminalSignatureImage, { width: 200, height: 100 })
                                     ]
                                 })
                                 : new Paragraph("Signature")

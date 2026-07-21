@@ -13,6 +13,7 @@ import {
     ImageRun,
     BorderStyle
 } from "docx";
+import { createTypedImageRun } from "./shared/createTypedImageRun.js";
 
 export async function generateOpsOfd015Doc(log, fullPath) {
     const docInfo = log.documentInfo || {};
@@ -59,7 +60,7 @@ export async function generateOpsOfd015Doc(log, fullPath) {
                                 ? new Paragraph({
                                     alignment: AlignmentType.CENTER,
                                     children: [
-                                        new ImageRun({ type: "jpg", data: logoImage, transformation: { width: 110, height: 110 } })
+                                        createTypedImageRun(logoImage, { width: 110, height: 110 })
                                     ]
                                 })
                                 : new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: LOGO_FALLBACK_TEXT, bold: true })] })

@@ -6,6 +6,7 @@ import { getGenerator, normalizeSlug } from "../pdf/registry.js";
 import { normalizeChecklistPayload } from "../pdf/normalizeChecklist.js";
 import { getQhsePdfGenerator } from "../pdf/qhseRegistry.js";
 import { normalizeQhseRecord } from "../pdf/normalizeQhseRecord.js";
+import { fixDocxTableWidths } from "../pdf/fixDocxTableWidths.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const GENERATED_DIR = path.join(__dirname, "..", "..", "data", "generated-docs");
@@ -78,7 +79,9 @@ async function generateOceaneDocx({
     if (!fs.existsSync(fullPath)) {
       throw new Error(`Template ${slug} did not write output file`);
     }
-    return fs.readFileSync(fullPath);
+    const raw = fs.readFileSync(fullPath);
+    // Percentage tables from docx@9 collapse in Zoho/browser viewers without DXA grids
+    return await fixDocxTableWidths(raw);
   } finally {
     try {
       if (fs.existsSync(fullPath)) fs.unlinkSync(fullPath);

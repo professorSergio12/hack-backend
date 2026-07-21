@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { loadSignatureImage } from "./shared/loadSignatureImage.js";
+import { createTypedImageRun } from "./shared/createTypedImageRun.js";
 import { loadDocumentLogo, LOGO_FALLBACK_TEXT } from "../documentLogo.js";
 import {
     Document,
@@ -78,7 +79,7 @@ export async function generateOpsOfd028Doc(checklist, fullPath) {
                                 ? new Paragraph({
                                     alignment: AlignmentType.CENTER,
                                     children: [
-                                        new ImageRun({ type: "jpg", data: logoImage, transformation: { width: 110, height: 110 } })
+                                        createTypedImageRun(logoImage, { width: 110, height: 110 })
                                     ]
                                 })
                                 : new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: LOGO_FALLBACK_TEXT, bold: true })] })
@@ -210,10 +211,7 @@ export async function generateOpsOfd028Doc(checklist, fullPath) {
             new Paragraph({
                 spacing: { before: 100 },
                 children: [
-                    new ImageRun({
-                        data: signatureImage,
-                        transformation: { width: 200, height: 80 }
-                    })
+                    createTypedImageRun(signatureImage, { width: 200, height: 80 })
                 ]
             })
         );
@@ -239,10 +237,7 @@ export async function generateOpsOfd028Doc(checklist, fullPath) {
             new Paragraph({
                 spacing: { before: 100 },
                 children: [
-                    new ImageRun({
-                        data: stampImage,
-                        transformation: { width: 200, height: 80 }
-                    })
+                    createTypedImageRun(stampImage, { width: 200, height: 80 })
                 ]
             })
         );
