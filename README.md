@@ -45,7 +45,7 @@ Default port **4000**. Production: Render (`hack-backend-h3eq.onrender.com`).
 | `PORT` | Server port (default 4000) |
 | `ZOHO_CLIENT_ID` / `ZOHO_CLIENT_SECRET` / `ZOHO_REFRESH_TOKEN` | Zoho OAuth (India: `ZOHO_ACCOUNTS_URL=https://accounts.zoho.in`) |
 | `ZOHO_CREATOR_OWNER` | e.g. `gaurav.khurana468` |
-| `ZOHO_CREATOR_APP` | e.g. `ocean-marine` |
+| `ZOHO_CREATOR_APP` | e.g. `sts-operations` |
 | `ZOHO_CREATOR_REPORT` | e.g. `STS_Operation_Report` |
 | `ZOHO_REFERENCE_FIELD` | default `Reference_Number` |
 | `API_KEY` | Optional — must match `HACKTHONE_API_KEY` on form apps |

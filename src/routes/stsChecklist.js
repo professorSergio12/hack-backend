@@ -11,6 +11,7 @@ import {
   saveStsSubmission,
   getStsSubmission,
 } from "../services/submissionStore.js";
+import { normalizeOperationRef } from "../lib/operationRef.js";
 
 const router = Router();
 
@@ -42,13 +43,18 @@ async function parseBodyData(req) {
 }
 
 async function submitChecklist(apiPath, operationRef, payload) {
-  if (!operationRef) {
+  const ref = normalizeOperationRef(operationRef);
+  if (!ref) {
     const err = new Error("operationRef (Reference_Number) is required");
     err.status = 400;
     throw err;
   }
 
-  const slug = await resolveFormSlug(apiPath, payload, operationRef);
+  if (payload && typeof payload === "object") {
+    payload.operationRef = ref;
+  }
+
+  const slug = await resolveFormSlug(apiPath, payload, ref);
   const form = getFormBySlug(slug);
   if (!form) {
     const err = new Error(`Unknown form slug: ${slug}`);
@@ -56,22 +62,22 @@ async function submitChecklist(apiPath, operationRef, payload) {
     throw err;
   }
 
-  await saveStsSubmission(operationRef, slug, payload);
+  await saveStsSubmission(ref, slug, payload);
 
   const pdfBuffer = await generateFormPdf({
     formSlug: form.slug,
     formTitle: form.title,
-    referenceNumber: operationRef,
+    referenceNumber: ref,
     formData: payload,
   });
 
-  const fileName = buildPdfFileName(form.slug, operationRef);
+  const fileName = buildPdfFileName(form.slug, ref);
   let creatorUpload = null;
   let uploadSkipped = false;
 
   if (config.zoho.clientId && config.zoho.refreshToken) {
     creatorUpload = await uploadPdfByReference(
-      operationRef,
+      ref,
       form.creatorField,
       pdfBuffer,
       fileName
@@ -83,7 +89,7 @@ async function submitChecklist(apiPath, operationRef, payload) {
   return {
     success: true,
     message: "Checklist submitted successfully",
-    operationRef,
+    operationRef: ref,
     slug: form.slug,
     creatorField: form.creatorField,
     fileName,
@@ -97,7 +103,7 @@ async function submitChecklist(apiPath, operationRef, payload) {
 router.get(/.+/, async (req, res) => {
   try {
     const apiPath = normalizeApiPath(req.path);
-    const operationRef = String(req.query.operationRef || "").trim();
+    const operationRef = normalizeOperationRef(req.query.operationRef || "");
     if (!operationRef) {
       return res.status(400).json({ error: "operationRef is required" });
     }

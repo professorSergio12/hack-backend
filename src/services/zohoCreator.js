@@ -1,4 +1,5 @@
 import { config, getCreatorBaseUrl } from "../config/env.js";
+import { normalizeOperationRef, operationRefCandidates } from "../lib/operationRef.js";
 
 let cachedToken = null;
 let tokenExpiresAt = 0;
@@ -36,16 +37,12 @@ export async function getAccessToken() {
   return cachedToken;
 }
 
-/**
- * Find Creator operation record by Reference_Number.
- * @returns {Promise<{ id: string, data: object } | null>}
- */
-export async function findOperationByReference(referenceNumber) {
+async function searchCreatorByExactRef(referenceNumber) {
   const token = await getAccessToken();
   const { creatorOwner, creatorApp, creatorReport, referenceField } = config.zoho;
   const base = getCreatorBaseUrl();
-
-  const criteria = `(${referenceField} == "${referenceNumber}")`;
+  const safe = String(referenceNumber || "").replace(/"/g, '\\"');
+  const criteria = `(${referenceField} == "${safe}")`;
   const url = `${base}/${creatorOwner}/${creatorApp}/report/${creatorReport}?criteria=${encodeURIComponent(criteria)}`;
 
   const res = await fetch(url, {
@@ -64,6 +61,44 @@ export async function findOperationByReference(referenceNumber) {
     id: record.ID,
     data: record,
   };
+}
+
+/**
+ * Find Creator operation record by Reference_Number.
+ * Tries spaced / padded variants so "STS-2026- 20" still matches "STS-2026-20".
+ * @returns {Promise<{ id: string, data: object } | null>}
+ */
+export async function findOperationByReference(referenceNumber) {
+  const candidates = operationRefCandidates(referenceNumber);
+  for (const candidate of candidates) {
+    const found = await searchCreatorByExactRef(candidate);
+    if (found) return found;
+  }
+
+  // Last resort: scan recent report rows and compare normalized refs
+  const token = await getAccessToken();
+  const { creatorOwner, creatorApp, creatorReport, referenceField } = config.zoho;
+  const base = getCreatorBaseUrl();
+  const target = normalizeOperationRef(referenceNumber);
+  if (!target) return null;
+
+  const url = `${base}/${creatorOwner}/${creatorApp}/report/${creatorReport}?max_records=200`;
+  const res = await fetch(url, {
+    headers: { Authorization: `Zoho-oauthtoken ${token}` },
+  });
+  const json = await res.json();
+  if (!res.ok || !Array.isArray(json.data)) return null;
+
+  const match = json.data.find((row) => {
+    let val = row?.[referenceField];
+    if (val && typeof val === "object") {
+      val = val.display_value || val.value || "";
+    }
+    return normalizeOperationRef(val) === target;
+  });
+
+  if (!match) return null;
+  return { id: match.ID, data: match };
 }
 
 /**

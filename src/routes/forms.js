@@ -3,6 +3,7 @@ import { getFormBySlug, FORM_CATALOGUE } from "../config/forms.js";
 import { generateFormPdf, buildPdfFileName } from "../services/pdfGenerator.js";
 import { uploadPdfByReference } from "../services/zohoCreator.js";
 import { config } from "../config/env.js";
+import { normalizeOperationRef } from "../lib/operationRef.js";
 
 const router = Router();
 
@@ -32,7 +33,9 @@ router.post("/:slug/submit", async (req, res) => {
       return res.status(404).json({ error: `Unknown form slug: ${req.params.slug}` });
     }
 
-    const operationRef = req.body?.operationRef || req.body?.referenceNumber;
+    const operationRef = normalizeOperationRef(
+      req.body?.operationRef || req.body?.referenceNumber || ""
+    );
     const formData = req.body?.data || req.body;
 
     if (!operationRef) {
